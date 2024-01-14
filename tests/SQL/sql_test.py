@@ -4,6 +4,11 @@ from sqlalchemy import text
 from core import db
 from core.models.assignments import Assignment, AssignmentStateEnum, GradeEnum
 
+query_assignments = text("DELETE  FROM assignments;")
+query_teachers = text("DELETE  FROM teachers;")
+
+result_assignments = db.session.execute(query_assignments)
+result_teachers = db.session.execute(query_teachers)
 
 def create_n_graded_assignments_for_teacher(number: int = 0, teacher_id: int = 1) -> int:
     """
@@ -61,6 +66,7 @@ def test_get_assignments_in_various_states():
         sql = fo.read()
 
     sql_result = db.session.execute(text(sql)).fetchall()
+    print(sql_result)
     for itr, result in enumerate(expected_result):
         assert result[0] == sql_result[itr][0]
         assert result[1] == sql_result[itr][1]

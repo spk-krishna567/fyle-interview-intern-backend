@@ -25,6 +25,7 @@ def grade_assignment(p, incoming_payload):
     grade_assignment_payload = AssignmentGradeSchema().load(incoming_payload)
 
     graded_assignment = Assignment.mark_grade(
+        teacher_id=p.teacher_id,
         _id=grade_assignment_payload.id,
         grade=grade_assignment_payload.grade,
         auth_principal=p

@@ -61,7 +61,7 @@ def h_principal():
     headers = {
         'X-Principal': json.dumps({
             'principal_id': 1,
-            'user_id': 5
+            'user_id': 2
         })
     }
 
