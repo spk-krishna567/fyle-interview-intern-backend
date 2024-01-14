@@ -1,5 +1,6 @@
 import enum
 from core import db
+from sqlalchemy import or_
 from core.apis.decorators import AuthPrincipal
 from core.libs import helpers, assertions
 from core.models.teachers import Teacher
@@ -65,8 +66,9 @@ class Assignment(db.Model):
         assertions.assert_found(assignment, 'No assignment with this id was found')
         assertions.assert_valid(assignment.student_id == auth_principal.student_id, 'This assignment belongs to some other student')
         assertions.assert_valid(assignment.content is not None, 'assignment with empty content cannot be submitted')
-
+        assertions.assert_valid(assignment.state!='SUBMITTED','this assignment alredy submitted')
         assignment.teacher_id = teacher_id
+        assignment.state='SUBMITTED'
         db.session.flush()
 
         return assignment
@@ -90,4 +92,21 @@ class Assignment(db.Model):
 
     @classmethod
     def get_assignments_by_teacher(cls, teacher_id):
-        return cls.filter(cls.teacher_id == teacher_id).all()
+        return cls.filter(cls.teacher_id == teacher_id).filter(cls.state == 'SUBMITTED').all()
+    @classmethod
+    def getsubmitted_and_gradedassignments(cls):
+        return cls.filter(or_(cls.state=='SUBMITTED',cls.state=='GRADED')).all()
+
+    @classmethod
+    def update_grade(cls,_id,grade):
+        assignment=Assignment.get_by_id(_id)
+        assertions.assert_found(assignment, 'No assignment with this id was found')
+        assertions.assert_valid(grade is not None, 'assignment with empty grade cannot be graded')
+        assertions.assert_valid(assignment.state in ['SUBMITTED','GRADED'],'this Assignment is not submitted')
+
+        assignment.grade = grade
+        assignment.state ='GRADED'
+        db.session.flush()
+
+        return assignment
+        
