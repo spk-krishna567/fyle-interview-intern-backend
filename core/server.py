@@ -42,3 +42,5 @@ def handle_error(err):
         ), err.code
 
     raise err
+
+app.run(debug=True)
